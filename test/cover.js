@@ -1,6 +1,6 @@
 'use strict';
 var aplus = require('promises-aplus-tests');
-var Promise = require('../lib');
+var Promise = require('../dist/lie');
 var adapter = {};
 var assert = require('assert');
 

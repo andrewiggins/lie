@@ -10,9 +10,7 @@ var REJECTED = ['REJECTED'];
 var FULFILLED = ['FULFILLED'];
 var PENDING = ['PENDING'];
 
-module.exports = Promise;
-
-function Promise(resolver) {
+export default function Promise(resolver) {
   if (typeof resolver !== 'function') {
     throw new TypeError('resolver must be a function');
   }

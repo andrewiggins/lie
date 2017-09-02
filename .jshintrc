@@ -17,5 +17,6 @@
     "describe": true,
     "it": true
   },
-  "predef": [ "-Promise" ]
+  "predef": [ "-Promise" ],
+  "esversion": 6
 }

@@ -1,4 +1,6 @@
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
+(function () {
+'use strict';
+
 'use strict';
 var immediate = setTimeout;
 
@@ -10,8 +12,6 @@ var handlers = {};
 var REJECTED = ['REJECTED'];
 var FULFILLED = ['FULFILLED'];
 var PENDING = ['PENDING'];
-
-module.exports = Promise;
 
 function Promise(resolver) {
   if (typeof resolver !== 'function') {
@@ -25,7 +25,7 @@ function Promise(resolver) {
   }
 }
 
-Promise.prototype["catch"] = function (onRejected) {
+Promise.prototype.catch = function (onRejected) {
   return this.then(null, onRejected);
 };
 Promise.prototype.then = function (onFulfilled, onRejected) {
@@ -253,13 +253,9 @@ function race(iterable) {
   }
 }
 
-},{}],2:[function(_dereq_,module,exports){
-(function (global){
 'use strict';
-if (typeof global.Promise !== 'function') {
-  global.Promise = _dereq_(1);
+if (typeof window.Promise !== 'function') {
+  window.Promise = Promise;
 }
 
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"1":1}]},{},[2]);
-
+}());

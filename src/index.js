@@ -30,7 +30,7 @@ Promise.prototype.then = function (onFulfilled, onRejected) {
     typeof onRejected !== 'function' && this.state === REJECTED) {
     return this;
   }
-  var promise = new this.constructor(INTERNAL);
+  var promise = new Promise(INTERNAL);
   if (this.state !== PENDING) {
     var resolver = this.state === FULFILLED ? onFulfilled : onRejected;
     unwrap(promise, resolver, this.outcome);

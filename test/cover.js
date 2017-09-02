@@ -221,7 +221,7 @@ describe('Lie', function () {
       });
     });
   });
- describe('Promise.race', function () {
+  describe('Promise.race', function () {
     //https://github.com/domenic/promises-unwrapping/blob/master/reference-implementation/test/all.js
     function delay(value, time, rejectIt) {
       return new Promise(function (resolve, reject) {

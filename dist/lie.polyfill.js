@@ -1,3 +1,6 @@
+(function () {
+'use strict';
+
 'use strict';
 var immediate = setTimeout;
 
@@ -10,7 +13,7 @@ var REJECTED = 1;
 var FULFILLED = 2;
 var PENDING = 3;
 
-export default function Promise(resolver) {
+function Promise(resolver) {
   if (typeof resolver !== 'function') {
     throw new TypeError('resolver must be a function');
   }
@@ -246,3 +249,10 @@ function race(iterable) {
     });
   }
 }
+
+'use strict';
+if (typeof window.Promise !== 'function') {
+  window.Promise = Promise;
+}
+
+}());

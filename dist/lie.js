@@ -41,34 +41,32 @@ Promise.prototype.then = function (onFulfilled, onRejected) {
     var resolver = this.state === FULFILLED ? onFulfilled : onRejected;
     unwrap(promise, resolver, this.outcome);
   } else {
-    this.queue.push(new QueueItem(promise, onFulfilled, onRejected));
+    this.queue.push(createQueueItem(promise, onFulfilled, onRejected));
   }
 
   return promise;
 };
-function QueueItem(promise, onFulfilled, onRejected) {
-  this.promise = promise;
-  if (typeof onFulfilled === 'function') {
-    this.onFulfilled = onFulfilled;
-    this.callFulfilled = this.otherCallFulfilled;
-  }
-  if (typeof onRejected === 'function') {
-    this.onRejected = onRejected;
-    this.callRejected = this.otherCallRejected;
-  }
+
+function createQueueItem(promise, onFulfilled, onRejected) {
+  return {
+    fulfill: function (value) {
+      if (typeof onFulfilled === 'function') {
+        unwrap(promise, onFulfilled, value);
+      }
+      else {
+        handlers.resolve(promise, value);
+      }
+    },
+    reject: function (reason) {
+      if (typeof onRejected === 'function') {
+        unwrap(promise, onRejected, reason);
+      }
+      else {
+        handlers.reject(promise, reason);
+      }
+    }
+  };
 }
-QueueItem.prototype.callFulfilled = function (value) {
-  handlers.resolve(this.promise, value);
-};
-QueueItem.prototype.otherCallFulfilled = function (value) {
-  unwrap(this.promise, this.onFulfilled, value);
-};
-QueueItem.prototype.callRejected = function (value) {
-  handlers.reject(this.promise, value);
-};
-QueueItem.prototype.otherCallRejected = function (value) {
-  unwrap(this.promise, this.onRejected, value);
-};
 
 function unwrap(promise, func, value) {
   immediate(function () {
@@ -101,7 +99,7 @@ handlers.resolve = function (self, value) {
     var i = -1;
     var len = self.queue.length;
     while (++i < len) {
-      self.queue[i].callFulfilled(value);
+      self.queue[i].fulfill(value);
     }
   }
   return self;
@@ -112,7 +110,7 @@ handlers.reject = function (self, error) {
   var i = -1;
   var len = self.queue.length;
   while (++i < len) {
-    self.queue[i].callRejected(error);
+    self.queue[i].reject(error);
   }
   return self;
 };

@@ -220,22 +220,6 @@ describe('Lie', function () {
         done();
       });
     });
-
-
-    it('should reject with a TypeError if given a non-iterable', function (done) {
-      var notIterable = {};
-
-      Promise.all(notIterable).then(
-        function () {
-          assert(false, 'should never get here');
-          done();
-        },
-        function (reason) {
-          assert(reason instanceof TypeError);
-          done();
-        }
-      );
-    });
   });
  describe('Promise.race', function () {
     //https://github.com/domenic/promises-unwrapping/blob/master/reference-implementation/test/all.js
@@ -321,23 +305,6 @@ describe('Lie', function () {
         assert.equal(value, undefined);
         done();
       });
-    });
-
-
-
-    it('should reject with a TypeError if given a non-iterable', function (done) {
-      var notIterable = {};
-
-      Promise.race(notIterable).then(
-        function () {
-          assert(false, 'should never get here');
-          done();
-        },
-        function (reason) {
-          assert(reason instanceof TypeError);
-          done();
-        }
-      );
     });
   });
   describe('Promises/A+ Tests', function () {

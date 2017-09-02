@@ -2,13 +2,13 @@
 var immediate = setTimeout;
 
 /* istanbul ignore next */
-function INTERNAL() {}
+function INTERNAL() { }
 
 var handlers = {};
 
-var REJECTED = ['REJECTED'];
-var FULFILLED = ['FULFILLED'];
-var PENDING = ['PENDING'];
+var REJECTED = 1;
+var FULFILLED = 2;
+var PENDING = 3;
 
 export default function Promise(resolver) {
   if (typeof resolver !== 'function') {
@@ -162,16 +162,16 @@ function tryCatch(func, value) {
   return out;
 }
 
-Promise.resolve = resolve;
-function resolve(value) {
+Promise.resolve = staticResolver;
+function staticResolver(value) {
   if (value instanceof this) {
     return value;
   }
   return handlers.resolve(new this(INTERNAL), value);
 }
 
-Promise.reject = reject;
-function reject(reason) {
+Promise.reject = staticRejector;
+function staticRejector(reason) {
   var promise = new this(INTERNAL);
   return handlers.reject(promise, reason);
 }
@@ -199,19 +199,18 @@ function all(iterable) {
   }
   return promise;
   function allResolver(value, i) {
-    self.resolve(value).then(resolveFromAll, function (error) {
-      if (!called) {
-        called = true;
-        handlers.reject(promise, error);
-      }
-    });
-    function resolveFromAll(outValue) {
+    self.resolve(value).then(function (outValue) {
       values[i] = outValue;
       if (++resolved === len && !called) {
         called = true;
         handlers.resolve(promise, values);
       }
-    }
+    }, function (error) {
+      if (!called) {
+        called = true;
+        handlers.reject(promise, error);
+      }
+    });
   }
 }
 

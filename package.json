@@ -19,14 +19,15 @@
   "main": "lib/index.js",
   "scripts": {
     "pretest": "npm run build",
-    "test": "npm run jshint && mocha -R nyan ./test/cover.js",
+    "test": "npm run jshint && mocha -R nyan ./test/cover.js && bundlesize",
     "build-node": "copyfiles -f src/index.js lib && browserify-transform-cli inline-process-browser unreachable-branch-transform es3ify < src/index.js > lib/browser.js",
     "build-js": "browserify -s Promise -p bundle-collapser/plugin . | derequire > ./dist/lie.js",
     "build-min": "uglifyjs ./dist/lie.js -mc > ./dist/lie.min.js",
     "build-poly-js": "browserify -p bundle-collapser/plugin ./polyfill.js | derequire > ./dist/lie.polyfill.js",
     "build-poly-min": "uglifyjs ./dist/lie.polyfill.js -mc > ./dist/lie.polyfill.min.js",
     "build-poly": "npm run build-poly-js && npm run build-poly-min",
-    "build": "npm run build-node && npm run build-js && npm run build-min && npm run build-poly",
+    "build": "npm run build-node && npm run build-js && npm run build-min && npm run build-poly && bundlesize",
+    "bundlesize": "bundlesize",
     "prebuild": "rimraf lib dist && mkdirp lib dist",
     "cover": "istanbul cover _mocha ./test/cover.js -- -R spec && istanbul check-coverage --lines 100 --function 100 --statements 100 --branches 100",
     "jshint": "jshint src",
@@ -37,6 +38,7 @@
     "browserify": "^13.0.0",
     "browserify-transform-cli": "^1.1.1",
     "bundle-collapser": "^1.2.1",
+    "bundlesize": "^0.13.2",
     "copyfiles": "^1.0.0",
     "derequire": "^1.2.0",
     "es3ify": "^0.2.2",
@@ -62,5 +64,15 @@
     "lib",
     "dist",
     "polyfill.js"
+  ],
+  "bundlesize": [
+    {
+      "path": "dist/lie.min.js",
+      "threshold": "1.67kb"
+    },
+    {
+      "path": "dist/lie.polyfill.min.js",
+      "threshold": "1.63kb"
+    }
   ]
 }

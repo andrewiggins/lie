@@ -36,6 +36,7 @@ Promise.prototype.then = function (onFulfilled, onRejected) {
     var resolver = this.state === FULFILLED ? onFulfilled : onRejected;
     unwrap(promise, resolver, this.outcome);
   } else {
+    // this.queue.push(new QueueItem(promise, onFulfilled, onRejected));
     this.queue.push(createQueueItem(promise, onFulfilled, onRejected));
   }
 
@@ -62,6 +63,30 @@ function createQueueItem(promise, onFulfilled, onRejected) {
     }
   };
 }
+
+// function QueueItem(promise, onFulfilled, onRejected) {
+//   this.promise = promise;
+//   this.onFulfilled = onFulfilled;
+//   this.onRejected = onRejected;
+// }
+
+// QueueItem.prototype.fulfill = function (value) {
+//   if (typeof this.onFulfilled === 'function') {
+//     unwrap(this.promise, this.onFulfilled, value);
+//   }
+//   else {
+//     resolveHandler(this.promise, value);
+//   }
+// };
+
+// QueueItem.prototype.reject = function (value) {
+//   if (typeof this.onRejected === 'function') {
+//     unwrap(this.promise, this.onRejected, value);
+//   }
+//   else {
+//     rejectHandler(this.promise, value);
+//   }
+// };
 
 function unwrap(promise, func, value) {
   immediate(function () {

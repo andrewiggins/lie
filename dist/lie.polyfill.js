@@ -7,8 +7,6 @@ var immediate = setTimeout;
 /* istanbul ignore next */
 function INTERNAL() { }
 
-var handlers = {};
-
 var REJECTED = 1;
 var FULFILLED = 2;
 var PENDING = 3;
@@ -51,7 +49,7 @@ function createQueueItem(promise, onFulfilled, onRejected) {
         unwrap(promise, onFulfilled, value);
       }
       else {
-        handlers.resolve(promise, value);
+        resolveHandler(promise, value);
       }
     },
     reject: function (reason) {
@@ -59,7 +57,7 @@ function createQueueItem(promise, onFulfilled, onRejected) {
         unwrap(promise, onRejected, reason);
       }
       else {
-        handlers.reject(promise, reason);
+       rejectHandler(promise, reason);
       }
     }
   };
@@ -71,20 +69,20 @@ function unwrap(promise, func, value) {
     try {
       returnValue = func(value);
     } catch (e) {
-      return handlers.reject(promise, e);
+      return rejectHandler(promise, e);
     }
     if (returnValue === promise) {
-      handlers.reject(promise, new TypeError('Cannot resolve promise with itself'));
+      rejectHandler(promise, new TypeError('Cannot resolve promise with itself'));
     } else {
-      handlers.resolve(promise, returnValue);
+      resolveHandler(promise, returnValue);
     }
   });
 }
 
-handlers.resolve = function (self, value) {
+function resolveHandler(self, value) {
   var result = tryCatch(getThen, value);
   if (result.status === 'error') {
-    return handlers.reject(self, result.value);
+    return rejectHandler(self, result.value);
   }
   var thenable = result.value;
 
@@ -100,8 +98,8 @@ handlers.resolve = function (self, value) {
     }
   }
   return self;
-};
-handlers.reject = function (self, error) {
+}
+function rejectHandler(self, error) {
   self.state = REJECTED;
   self.outcome = error;
   var i = -1;
@@ -110,7 +108,7 @@ handlers.reject = function (self, error) {
     self.queue[i].reject(error);
   }
   return self;
-};
+}
 
 function getThen(obj) {
   // Make sure we only access the accessor once as required by the spec
@@ -130,7 +128,7 @@ function safelyResolveThenable(self, thenable) {
       return;
     }
     called = true;
-    handlers.reject(self, value);
+    rejectHandler(self, value);
   }
 
   function onSuccess(value) {
@@ -138,7 +136,7 @@ function safelyResolveThenable(self, thenable) {
       return;
     }
     called = true;
-    handlers.resolve(self, value);
+    resolveHandler(self, value);
   }
 
   function tryToUnwrap() {
@@ -168,13 +166,13 @@ function staticResolver(value) {
   if (value instanceof this) {
     return value;
   }
-  return handlers.resolve(new this(INTERNAL), value);
+  return resolveHandler(new this(INTERNAL), value);
 }
 
 Promise.reject = staticRejector;
 function staticRejector(reason) {
   var promise = new this(INTERNAL);
-  return handlers.reject(promise, reason);
+  return rejectHandler(promise, reason);
 }
 
 Promise.all = all;
@@ -204,12 +202,12 @@ function all(iterable) {
       values[i] = outValue;
       if (++resolved === len && !called) {
         called = true;
-        handlers.resolve(promise, values);
+        resolveHandler(promise, values);
       }
     }, function (error) {
       if (!called) {
         called = true;
-        handlers.reject(promise, error);
+        rejectHandler(promise, error);
       }
     });
   }
@@ -239,12 +237,12 @@ function race(iterable) {
     self.resolve(value).then(function (response) {
       if (!called) {
         called = true;
-        handlers.resolve(promise, response);
+        resolveHandler(promise, response);
       }
     }, function (error) {
       if (!called) {
         called = true;
-        handlers.reject(promise, error);
+        rejectHandler(promise, error);
       }
     });
   }
